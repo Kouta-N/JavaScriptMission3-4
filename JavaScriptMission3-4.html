@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <title>JavaScriptMission3-4</title>
+</head>
+
+<body>
+
+  <h1>ToDoリスト</h1>
+  <form>
+    <input type="radio" name="check" id="all">すべて
+    <input type="radio" name="check" id="doing">作業中
+    <input type="radio" name="check" id="fin">完了
+  </form>
+
+<table id="todo">
+    <tr class="tableHeader">
+      <td>ID</td>
+      <td>コメント</td>
+      <td>状態</td>
+    </tr>
+</table>
+
+  <h2>新規タスクの追加</h2>
+
+  <form>
+    <input type="text" id="newTask">
+    <input type="button" id="add" value="追加">
+  </form>
+
+<script>
+  
+    const changeTable = document.getElementsByName('check');
+    changeTable[0].checked = true;  
+    let idNum = 1;//IDの添字 
+    let buttonId = 0;//作業中、完了ボタンをテーブルに格納するための添字 
+
+    // ToDoリストテーブル要素の追加作業を関数化 //
+    function outputTable(index,buttonNum){
+    const addTable = document.getElementById('todo');
+    const row = addTable .insertRow(-1);//引数の-1は最後の列を指定できる
+    const indexCell = row.insertCell(0);
+    const commentCell = row.insertCell(1);
+    const staCell = row.insertCell(2);
+    staCell.setAttribute('id','sta' + `${buttonNum}`);//作業中、削除のボタンを指定するテーブル内にappendChildするためのIDを作成
+
+    // ID出力 //
+    indexCell.innerHTML = index;
+
+    // コメント出力 //
+    const commentText = document.getElementById('newTask').value;
+    commentCell.innerHTML = commentText;
+    newTask.value = ''; //コメント入力フォームの初期化
+
+    // ボタン出力 //
+    const statusButton = document.createElement('button');
+    statusButton.classList.add('buttonStyle');
+    statusButton.innerHTML = '作業中';
+    staCell.appendChild(statusButton);
+    statusButton.addEventListener('click', () => changeTask(statusButton));
+
+    const deleteButton = document.createElement('button');
+    deleteButton.classList.add('buttonStyle');
+    deleteButton.innerHTML = '削除';
+    staCell.appendChild(deleteButton);
+    deleteButton.addEventListener('click', () => removeTask(statusButton,deleteButton,indexCell.innerHTML));
+
+    // 完了　選択時にタスクを新規追加した場合、タスクを表示しないための処理//
+    const changeTable = document.getElementsByName('check');
+    if(changeTable[2].checked === true){
+      const showTable = document.getElementById('todo');
+      for(let cellNum = 0; cellNum < showTable.rows[1].cells.length; cellNum++){
+          showTable.rows[index].cells[cellNum].style.display = 'none';
+      }
+    }
+
+    // 要素数の調整 //
+    idNum++;//ToDoリストを1つ追加したため、IDの要素数を+1
+    buttonId++;
+    }
+
+    // ボタンによるタスクの削除を関数化 //
+    const removeTask = (statusButton,deleteButton , index) => {
+    const deleteTable = document.getElementById('todo');
+    deleteTable.deleteRow(deleteTable.rows[index].cells[0].innerHTML);
+
+    // IDふり直し //
+    for(let rowNum = index;rowNum < deleteTable.rows.length; rowNum++){
+      deleteTable.rows[rowNum].cells[0].innerHTML = rowNum;
+    }
+
+   idNum--;//ToDoリストを1つ削除したため、IDの要素数を-1
+    };
+
+    // ボタンを押すことによる作業中、完了ボタンの変更を関数化 //
+    function changeTask(statusButton)  {
+      if(statusButton.innerHTML === '作業中'){
+        statusButton.innerHTML = '完了';
+      }else{
+        statusButton.innerHTML = '作業中';
+      }
+    }
+
+
+    // すべて　ラジオボタンが押されたときの出力処理を行う関数 //
+    function changeAllDisplay(){
+    const showTable = document.getElementById('todo');
+
+          for(let rowNum = 1;rowNum < showTable.rows.length; rowNum++){
+              for(let cellNum = 0; cellNum < showTable.rows[1].cells.length; cellNum ++){
+                showTable.rows[rowNum].cells[cellNum].style.display = 'table-cell';
+              }
+          }
+    }
+
+
+    // 作業中　ラジオボタンが押されたときの出力処理を行う関数 //
+    function changeDoingDisplay(){
+      changeAllDisplay();
+      const showTable = document.getElementById('todo');
+
+          for(let rowNum = 0;rowNum < showTable.rows.length; rowNum++){
+            if(showTable.rows[rowNum].cells[2].innerHTML.match('完了')){
+
+              for(let cellNum = 0; cellNum < showTable.rows[1].cells.length; cellNum++){
+                showTable.rows[rowNum].cells[cellNum].style.display = 'none';
+              }
+
+            }
+
+          }
+
+    }
+
+    // 完了　ラジオボタンが押されたときの出力処理を行う関数 //
+    function changeFinDisplay(){
+      changeAllDisplay();
+      const showTable = document.getElementById('todo');
+          for(let rowNum = 0;rowNum < showTable.rows.length; rowNum++){
+              if(showTable.rows[rowNum].cells[2].innerHTML.match('作業中')){
+                for(let cellNum = 0; cellNum < showTable.rows[1].cells.length; cellNum++){
+                  showTable.rows[rowNum].cells[cellNum].style.display = 'none';
+                }
+              }
+          }
+     }
+
+
+/////ここまで変数、関数の定義　下から本文/////
+
+
+    // 追加ボタンが押されたときの出力処理 //
+    const onclick = document.getElementById('add');
+    onclick.addEventListener('click', function (){
+    outputTable(idNum,buttonId);
+    });
+
+    // 全て　ラジオボタンが押されたときの出力処理 //
+    const all_click = document.getElementById('all');
+    all_click.addEventListener('click',function(){
+      changeAllDisplay();
+    });
+
+    // 作業中　ラジオボタンが押されたときの出力処理 //
+    const doing_click = document.getElementById('doing');
+    doing_click.addEventListener('click',function(){
+      changeDoingDisplay();
+    });
+
+    // 完了　ラジオボタンが押されたときの出力処理 //
+    const fin_click = document.getElementById('fin');
+    fin_click.addEventListener('click',function(){
+      changeFinDisplay();
+    });
+
+
+</script>
+
+<style>
+  .tableHeader{
+    text-align: center;
+  }
+
+  .buttonStyle{
+    margin-right: 10px;
+    border-radius: 3px;
+    border:solid 1px;
+    background-color: white;
+  }
+</style>
+</body>
+</html>
